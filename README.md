@@ -16,10 +16,11 @@ https://github.com/Re-Coma/Classical-Piano-Composer
   * BATCH_SIZE : 렘에 올라갈 데이터 양(보통 GPU 사용할때 allocation관련 에러가 뜨면 이 사이즈를 조정)
 
 2. training.py를 실행
-  * 멜로디 학습이 완료되었을 경우, 가장 최근에 생성된 hdf 파일의 이름을 note_weight로 수정
-  * 길이 학습이 완료되면 가장 최근에 생성된 hdf 파일을 duration_weight로 수정
+  * 멜로디 학습이 완료되었을 경우, 가장 최근에 생성된 hdf5 파일의 이름을 chord_weight로 수정
+  * 길이 학습이 완료되면 가장 최근에 생성된 hdf5 파일을 duration_weight로 수정
 
 3. predict.py를 실행해 midi 파일 생성
+  * NOTE_NUM을 수정하면 노트 갯수를 조절할 수 있다.
 
 ## 앞으로 개선해야 할 부분
 길이 모델은 음악 모델처럼 처음 데이터를 랜덤이 아닌 박자 설정에 따라 다르게 설정 할 필요가 있음

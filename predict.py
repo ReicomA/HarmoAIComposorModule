@@ -31,6 +31,8 @@ from music21 import converter, instrument, note, chord, duration, stream
 
 DATA_SIZE = 100
 
+NOTE_NUM = 200
+
 def make_sequence(datas, data_labels, n_vocab):
 
     data_to_int = dict((datas, number) for number, datas in enumerate(data_labels))
@@ -147,8 +149,8 @@ if __name__ == "__main__":
     durations_model = make_LSTM_model(durations_inputs[1], durations_vocab, True, "duration_weight.hdf5")
 
     # generate data
-    result_midi_raw = get_datas(note_model, notes_inputs[0], note_labels ,notes_vocab, 10)
-    result_durations_raw = get_datas(durations_model ,durations_inputs[0], durations_lables, durations_vocab, 10)
+    result_midi_raw = get_datas(note_model, notes_inputs[0], note_labels ,notes_vocab, NOTE_NUM)
+    result_durations_raw = get_datas(durations_model ,durations_inputs[0], durations_lables, durations_vocab, NOTE_NUM)
 
     # make midi_data
     midi = make_midi_data(result_midi_raw, result_durations_raw)
