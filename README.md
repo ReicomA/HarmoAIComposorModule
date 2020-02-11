@@ -11,7 +11,7 @@ https://github.com/Re-Coma/Classical-Piano-Composer
 1. Config (training.py)
   * COMPOSER_NAME : 작곡가 이름(Chopin, Beethoven, Scarlatti) 중에 하나 선택
   * MAX_SHEET : 학습할 곡의 갯수 지정(아무것도 안하면 최대, 이왕이면 비추천)
-  * TIME_SIGNATURE : 2, 3중에 하나를 선택하며, 2는 2/4, 4/4박자 계열, 3/4는 3분의 4박자 계열
+  * TIME_SIGNATURE : 2, 3중에 하나를 선택하며, 2는 2/4, 4/4박자 계열, 3은 3박자 계열
   * EPOCHS : 학습 수 (200 이상 권장)
   * BATCH_SIZE : 렘에 올라갈 데이터 양(보통 GPU 사용할때 allocation관련 에러가 뜨면 이 사이즈를 조정)
 
@@ -20,3 +20,6 @@ https://github.com/Re-Coma/Classical-Piano-Composer
   * 길이 학습이 완료되면 가장 최근에 생성된 hdf 파일을 duration_weight로 수정
 
 3. predict.py를 실행해 midi 파일 생성
+
+## 앞으로 개선해야 할 부분
+길이 모델은 음악 모델처럼 처음 데이터를 랜덤이 아닌 박자 설정에 따라 다르게 설정 할 필요가 있음
