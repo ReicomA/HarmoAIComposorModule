@@ -39,11 +39,14 @@ def make_LSTM_model(network_input, n_vocab, isTest=False, use_weight_file=None):
         recurrent_dropout=0.3,
         return_sequences=True
     ))
-    model.add(LSTM(512, return_sequences=True, recurrent_dropout=0.3,))
-    model.add(LSTM(512, return_sequences=True, recurrent_dropout=0.3,))
-    model.add(LSTM(512, return_sequences=True, recurrent_dropout=0.3,))
-    model.add(LSTM(512, return_sequences=True, recurrent_dropout=0.3,))
-    model.add(LSTM(512, return_sequences=True, recurrent_dropout=0.3,))
+    model.add(LSTM(512, return_sequences=True, dropout=0.3, recurrent_dropout=0.3,))
+    model.add(LSTM(512, return_sequences=True, dropout=0.3, recurrent_dropout=0.3,))
+    model.add(LSTM(512, return_sequences=True, dropout=0.3, recurrent_dropout=0.3,))
+    model.add(LSTM(512, return_sequences=True, dropout=0.3, recurrent_dropout=0.3,))
+    model.add(LSTM(512, return_sequences=True, dropout=0.3, recurrent_dropout=0.3,))
+
+
+
     model.add(LSTM(512))
 
     model.add(BatchNorm())
