@@ -43,8 +43,6 @@ def make_LSTM_model(network_input, n_vocab, isTest=False, use_weight_file=None):
     model.add(LSTM(512, return_sequences=True, dropout=0.3, recurrent_dropout=0.3,))
     model.add(LSTM(512, return_sequences=True, dropout=0.3, recurrent_dropout=0.3,))
     model.add(LSTM(512, return_sequences=True, dropout=0.3, recurrent_dropout=0.3,))
-    model.add(LSTM(512, return_sequences=True, dropout=0.3, recurrent_dropout=0.3,))
-
 
 
     model.add(LSTM(512))

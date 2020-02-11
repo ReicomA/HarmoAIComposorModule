@@ -7,9 +7,9 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 
 """ COINFIG """
 COMPOSER_NAME = "Chopin"
-MAX_SHEET = None #Infinite
+MAX_SHEET = 10 #Infinite
 TIME_SIGNATURE = 2
-EPOCHS = 200
+EPOCHS = 20
 BATCH_SIZE = 32
 
 
