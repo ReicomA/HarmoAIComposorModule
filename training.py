@@ -4,13 +4,19 @@ import pickle
 from model import *
 from tensorflow.keras.callbacks import ModelCheckpoint
 
+import tensorflow as tf
+
+from tensorflow.compat.v1 import ConfigProto
+from tensorflow.compat.v1 import InteractiveSession
+from tensorflow.compat.v1.keras.backend import set_session
+
 
 """ COINFIG """
 COMPOSER_NAME = "Chopin"
 MAX_SHEET = 10 #Infinite
 TIME_SIGNATURE = 2
 EPOCHS = 20
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 
 
 """ data save path """
@@ -36,9 +42,6 @@ duration_table = make_mapping_table(data_set["duration"])
 chord_sequence = make_sequence(data_set["chord"], chord_table)
 duration_sequence = make_sequence(data_set["duration"], duration_table)
 
-# make model
-chord_model = make_LSTM_model(chord_sequence[0], make_n_vocab(data_set["chord"]))
-duration_model = make_LSTM_model(chord_sequence[0], make_n_vocab(data_set["duration"]))
 
 # train model
 # 1. chord
@@ -53,7 +56,19 @@ check_point = ModelCheckpoint(          \
     period=10                          \
 )
 
+
+gpu_config = ConfigProto()
+gpu_config.gpu_options.allow_growth = True
+ss = InteractiveSession(config=gpu_config)
+set_session(ss)
+
 callbacks_list = [check_point]
+
+    # make model
+chord_model = make_LSTM_model(chord_sequence[0], make_n_vocab(data_set["chord"]))
 chord_model.fit(chord_sequence[0], chord_sequence[1], epochs=EPOCHS, batch_size=BATCH_SIZE, callbacks=callbacks_list, validation_split=0.2)
 
+
+duration_model = make_LSTM_model(chord_sequence[0], make_n_vocab(data_set["duration"]))
 duration_model.fit(duration_sequence[0], duration_sequence[1], epochs=EPOCHS, batch_size=BATCH_SIZE, callbacks=callbacks_list, validation_split=0.2)
+ss.close()

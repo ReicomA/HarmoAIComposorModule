@@ -30,9 +30,16 @@ from tensorflow.keras.layers import LSTM
 from tensorflow.keras.layers import Activation
 from tensorflow.keras.layers import BatchNormalization as BatchNorm
 
+
 def make_LSTM_model(network_input, n_vocab, isTest=False, use_weight_file=None):
 
+    """
+    config = tf.compat.v1.ConfigProto()
+    config.gpu_options.allow_growth = True
+    """
+
     model = Sequential()
+
     model.add(LSTM(
         512,
         input_shape=(network_input.shape[1], network_input.shape[2]),
