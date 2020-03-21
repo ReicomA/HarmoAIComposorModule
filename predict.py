@@ -1,78 +1,131 @@
-"""
-MIT License
+import glob
+import pickle
+import numpy
+import pandas as pd
+from music21 import converter, instrument, note, chord
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dropout
+from tensorflow.keras.layers import LSTM
+from tensorflow.keras.layers import Activation
+from tensorflow.keras.layers import BatchNormalization as BatchNorm
+from tensorflow.keras.utils import to_categorical 
+from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.models import load_model
 
-Copyright (c) 2019 Sigurður Skúli Sigurgeirsson
+from music21 import converter, instrument, note, chord, duration, stream, meter
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+import parse
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+TARGET_CHORD_MODEL = "Ludwig van Beethoven-4-chord.h5"
+TARGET_CHORD_TABLE = "data/chord_map"
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-"""
+TARGET_DURATION_MODEL = "Ludwig van Beethoven-4-duration.h5"
+TARGET_DURATION_TABLE = "data/duration_map"
 
-from data_loader import *
-from data_decomposor import *
-from model import *
+MAX_NOTE = 20
 
-import numpy as np
-from music21 import converter, instrument, note, chord, duration, stream
+def load_generator_table(target_root, result_type):
+    table = {}
+    file_stream = open(target_root, "r")
 
-DATA_SIZE = 100
+    lines = file_stream.readlines()
+    file_stream.close()
+    for line in lines:
+        parsed_str = parse.parse("{}:{}", line)
+        if result_type == "chord":
+            table[int(parsed_str[1])] = parsed_str[0]
+        elif result_type == "duration":
+            table[int(parsed_str[1])] = float(parsed_str[0])
 
-NOTE_NUM = 200
+    return table
 
-def make_sequence(datas, data_labels, n_vocab):
+def load_table(target_root, result_type):
+    table = {}
+    file_stream = open(target_root, "r")
 
-    data_to_int = dict((datas, number) for number, datas in enumerate(data_labels))
-    sequence_len = 100
+    lines = file_stream.readlines()
+    file_stream.close()
+    for line in lines:
+        parsed_str = parse.parse("{}:{}", line)
+        if result_type == "chord":
+            table[parsed_str[0]] = int(parsed_str[1])
+        elif result_type == "duration":
+            table[float(parsed_str[0])] = int(parsed_str[1])
+
+    return table
+
+
+# 노트 불러오기
+def load_notes(target_root):
+    notes = None
+    with open(target_root, 'rb') as filepath:
+        notes = pickle.load(filepath)
+    return notes
+
+# 길이 불러오기
+def load_durations(target_root):
+    durations = None
+    with open(target_root, 'rb') as filepath:
+        durations = pickle.load(filepath)
+    return durations
+
+# 시퀸스 생성
+def prepare_chord_sequences(notes, table, n_vocab):
+    """ Prepare the sequences used by the Neural Network """
+    sequence_length = 100
     network_input = []
     output = []
-
-    for i in range(0, len(datas) - sequence_len, 1):
-        sequence_in = datas[i:i + sequence_len]
-        sequence_out = datas[i + sequence_len]
-        network_input.append([data_to_int[char] for char in sequence_in])
-        output.append(data_to_int[sequence_out])
+    for i in range(0, len(notes) - sequence_length, 1):
+        sequence_in = notes[i:i + sequence_length]
+        sequence_out = notes[i + sequence_length]
+        network_input.append([table[char] for char in sequence_in])
+        output.append(table[sequence_out])
 
     n_patterns = len(network_input)
 
-    normalized_input = np.reshape(network_input, (n_patterns, sequence_len, 1))
+    # reshape the input into a format compatible with LSTM layers
+    normalized_input = numpy.reshape(network_input, (n_patterns, sequence_length, 1))
+    # normalize input
     normalized_input = normalized_input / float(n_vocab)
 
     return (network_input, normalized_input)
 
-def get_datas(model, network_input, data_labels, n_vocab, midi_range):
+def prepare_duration_sequences(durations, table, n_vocab):
+    """ Prepare the sequences used by the Neural Network """
+    sequence_length = 100
+    network_input = []
+    output = []
+    for i in range(0, len(durations) - sequence_length, 1):
+        sequence_in = durations[i:i + sequence_length]
+        sequence_out = durations[i + sequence_length]
+        network_input.append([table[char] for char in sequence_in])
+        output.append(table[sequence_out])
+
+    n_patterns = len(network_input)
+
+    # reshape the input into a format compatible with LSTM layers
+    normalized_input = numpy.reshape(network_input, (n_patterns, sequence_length, 1))
+    # normalize input
+    normalized_input = normalized_input / float(n_vocab)
+
+    return (network_input, normalized_input)
+
+
+def generate(model, network_input, generate_table, n_vocab):
     
-    """ random sequence """
-    # pick a random sequence from the input as a starting point for the prediction
-    start = np.random.randint(0, len(network_input)-1)
-
-    int_to_note = dict((number, note) for number, note in enumerate(data_labels))
-
+    start = numpy.random.randint(0, len(network_input)-1)
     pattern = network_input[start]
     prediction_output = []
 
-    # generate 500 notes
-    for note_index in range(midi_range):
-        prediction_input = np.reshape(pattern, (1, len(pattern), 1))
+    for note_index in range(MAX_NOTE):
+        prediction_input = numpy.reshape(pattern, (1, len(pattern), 1))
         prediction_input = prediction_input / float(n_vocab)
 
         prediction = model.predict(prediction_input, verbose=0)
 
-        index = np.argmax(prediction)
-        result = int_to_note[index]
+        index = numpy.argmax(prediction)
+        result = generate_table[index]
         prediction_output.append(result)
 
         pattern.append(index)
@@ -80,18 +133,18 @@ def get_datas(model, network_input, data_labels, n_vocab, midi_range):
 
     return prediction_output
 
-def make_midi_data(raw_note_list, raw_duration_list):
-    
+""" 이 부분부터는 Only Test용 """
+def create_midi(chord_output, duration_output):
     offset = 0
     # result note
     output_notes = []
-    for i in range(len(raw_note_list)):
+    for i in range(len(chord_output)):
 
-        pattern = raw_note_list[i]
-        n_duration = raw_duration_list[i]
+        pattern = chord_output[i]
+        n_duration = duration_output[i]
 
         # in Chord
-        if ('.' in pattern) or pattern_isdigit():
+        if ('.' in pattern) or pattern.isdigit():
             
             notes_in_chord = pattern.split('.')
             notes = []
@@ -121,44 +174,42 @@ def make_midi_data(raw_note_list, raw_duration_list):
 
     return output_notes
 
-
-def make_midi_file(midi_data, file_name):    
-    midi_stream = stream.Stream(midi_data)
+def make_midi_file(midi_data, file_name, timeSignature):
+    midi_stream = stream.Stream()
+    midi_stream.append(meter.TimeSignature(timeSignature))
+    midi_stream.append(midi_data)
     midi_stream.write('midi', file_name)
+    midi_stream.show('text')
 
 
 if __name__ == "__main__":
+    #  모델 불러오기
+    chord_model = load_model(TARGET_CHORD_MODEL)
+    duration_model = load_model(TARGET_DURATION_MODEL)
 
-    # load
-    notes, durations = load_data()
+    # 노트 데이터 불러오기
+    notes = load_notes('data/notes')
+    durations = load_durations('data/durations')
 
-    # make label
-    note_labels = sorted(set(item for item in notes))
-    durations_lables = sorted(set(item for item in durations))
+    # 해시 테이블 불러오기
+    chord_table = load_table(TARGET_CHORD_TABLE, "chord")
+    chord_n_vocab = len(chord_table.keys())
 
-    # make vocab
-    notes_vocab = make_n_vocab(notes)
-    durations_vocab = make_n_vocab(durations)
+    duration_table = load_table(TARGET_DURATION_TABLE, "duration")
+    duration_n_vocab = len(duration_table.keys())
 
-    # make inputs
-    notes_inputs = make_sequence(notes, note_labels, notes_vocab)
-    durations_inputs = make_sequence(durations, durations_lables, durations_vocab)
-
-    # make model
-    note_model = make_LSTM_model(notes_inputs[1], notes_vocab, True, "chord_weight.hdf5")
-    durations_model = make_LSTM_model(durations_inputs[1], durations_vocab, True, "duration_weight.hdf5")
-
-    # generate data
-    result_midi_raw = get_datas(note_model, notes_inputs[0], note_labels ,notes_vocab, NOTE_NUM)
-    result_durations_raw = get_datas(durations_model ,durations_inputs[0], durations_lables, durations_vocab, NOTE_NUM)
-
-    # make midi_data
-    midi = make_midi_data(result_midi_raw, result_durations_raw)
-    # write midi
-    make_midi_file(midi, "test.mid")
-
-    # midi_result = make_midi_data(result_midi_raw, result_durations_raw)
-
-
-
+    # 시퀸스 생성하기
+    chord_network_input, chord_normalized_input = prepare_chord_sequences(notes, chord_table, chord_n_vocab)
+    duration_network_input, duration_normalized_input = prepare_duration_sequences(durations, duration_table, duration_n_vocab)
     
+    # Generate용 테이블 생성하기
+    chord_table = load_generator_table(TARGET_CHORD_TABLE, "chord")
+    duration_table = load_generator_table(TARGET_DURATION_TABLE, "duration")
+
+
+    chord_output = generate(chord_model, chord_network_input, chord_table, chord_n_vocab)
+    duration_output = generate(duration_model, duration_network_input, duration_table, duration_n_vocab)
+
+
+    midi = create_midi(chord_output, duration_output)
+    make_midi_file(midi, "test.mid", "4/4")
