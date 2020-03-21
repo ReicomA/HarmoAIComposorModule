@@ -28,8 +28,8 @@ COMPOSOR_LIST = ["Frédéric Chopin", "Domenico Scarlatti", "Ludwig van Beethove
 
 COMPOSOR_NAME = COMPOSOR_LIST[2]
 TIME_SIGNATURE = "4"
-EPOCHS = 20
-BATCH_SIZE = 8
+EPOCHS = 200
+BATCH_SIZE = 512
 
 DIR_PATH = "./maestro-v2.0.0/"
 CSV_NAME = "maestro-v2.0.0.csv"
@@ -68,13 +68,10 @@ def get_notes():
                     (one_midi.getTimeSignatures()[0].ratioString == "6/8"):
                     midi_list.append(one_midi)
                     print("Root %s is detected." % (root))        
-        # Test
-        if len(midi_list) == 5:
-            break
     print("%d midi file detected!" % len(midi_list))
     print("Start Parsing...")
 
-
+    i = 0
     for midi in midi_list:
         print("Parsing..")
         notes_to_parse = None
@@ -89,6 +86,8 @@ def get_notes():
                 if isinstance(element.duration.quarterLength, Fraction) == False:
                     if (element.duration.quarterLength <= 4 and element.duration.quarterLength > 0):
                         durations.append(element.duration.quarterLength)
+        if i == 60:
+            break
 
     # Save notes
     with open('data/durations', 'wb') as filepath:
@@ -153,7 +152,7 @@ def create_network(network_input, n_vocab):
     model.add(Dropout(0.3))
     model.add(Dense(n_vocab))
     model.add(Activation('softmax'))
-    model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
+    model.compile(loss='categorical_crossentropy', optimizer='adam')
 
     return model
 
@@ -178,5 +177,8 @@ if __name__ == '__main__':
     network_input, network_output = prepare_sequences(durations, table, n_vocab)
     model = create_network(network_input, n_vocab)
 
-    #train(model, network_input, network_output)
+    del durations
+    del table
+
+    train(model, network_input, network_output)
     model.save('%s-%s-duration.h5'% (COMPOSOR_NAME, TIME_SIGNATURE))

@@ -15,6 +15,10 @@ from tensorflow.keras.models import load_model
 
 from time import time
 
+from tensorflow.compat.v1 import ConfigProto
+from tensorflow.compat.v1 import InteractiveSession
+from tensorflow.compat.v1.keras.backend import set_session
+import tensorflow.compat.v1 as tf
 """CONFIG
     COMPOSOR_NAME = "song", "chopin", "scarlatti", "beetoven"
     TIME_SIGNATURE = "4", "3/4", "8"
@@ -28,8 +32,8 @@ COMPOSOR_LIST = ["Frédéric Chopin", "Domenico Scarlatti", "Ludwig van Beethove
 
 COMPOSOR_NAME = COMPOSOR_LIST[2]
 TIME_SIGNATURE = "4"
-EPOCHS = 20
-BATCH_SIZE = 8
+EPOCHS = 200
+BATCH_SIZE = 512
 
 DIR_PATH = "./maestro-v2.0.0/"
 CSV_NAME = "maestro-v2.0.0.csv"
@@ -51,6 +55,8 @@ def get_notes():
             print("checking...")
             one_midi = converter.parse(root)
 
+            print(one_midi.getTimeSignatures()[0].ratioString)
+
             # 박자표 검토
             if TIME_SIGNATURE == "4":
                 if (one_midi.getTimeSignatures()[0].ratioString == "4/4") or \
@@ -68,13 +74,10 @@ def get_notes():
                     (one_midi.getTimeSignatures()[0].ratioString == "6/8"):
                     midi_list.append(one_midi)
                     print("Root %s is detected." % (root))        
-        # Test
-        if len(midi_list) == 5:
-            break
     print("%d midi file detected!" % len(midi_list))
     print("Start Parsing...")
 
-
+    i = 0
     for midi in midi_list:
         print("Parsing..")
         notes_to_parse = None
@@ -91,6 +94,11 @@ def get_notes():
                 notes.append('.'.join(str(n) for n in element.normalOrder))
             elif isinstance(element, note.Rest):
                 notes.append("rest")
+        if i == 70:
+            break
+        else:
+            i = i + 1
+    print("files : %d\n" % i)
 
 
     # Save notes
@@ -151,6 +159,8 @@ def create_network(network_input, n_vocab):
         return_sequences=True
     ))
     model.add(LSTM(512, return_sequences=True, recurrent_dropout=0.3,))
+    model.add(LSTM(512, return_sequences=True, recurrent_dropout=0.3,))
+    model.add(LSTM(512, return_sequences=True, recurrent_dropout=0.3,))
     model.add(LSTM(512))
     model.add(BatchNorm())
     model.add(Dropout(0.3))
@@ -160,7 +170,7 @@ def create_network(network_input, n_vocab):
     model.add(Dropout(0.3))
     model.add(Dense(n_vocab))
     model.add(Activation('softmax'))
-    model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
+    model.compile(loss='categorical_crossentropy', optimizer='adam')
 
     return model
 
@@ -172,7 +182,8 @@ def train(model, network_input, network_output):
         monitor='loss',
         verbose=0,
         save_best_only=True,
-        mode='min'
+        mode='min',
+		period=50
     )
     callbacks_list = [checkpoint]
     model.fit(network_input, network_output, epochs=EPOCHS, batch_size=BATCH_SIZE, callbacks=callbacks_list, validation_split=0.2)
@@ -182,7 +193,19 @@ if __name__ == '__main__':
     n_vocab = len(set(notes))
     table = make_table(notes)
     network_input, network_output = prepare_sequences(notes, table, n_vocab)
+
+    """
+    gpu_config = ConfigProto()
+    gpu_config.gpu_options.allow_growth = True
+    gpu_config.gpu_options.per_process_gpu_memory_fraction = 0.1
+    ss = tf.Session(config=gpu_config)
+    set_session(ss)
+    """
+    del notes
+    del table
+
     model = create_network(network_input, n_vocab)
     train(model, network_input, network_output)
     # 모델 저장
     model.save('%s-%s-chord.h5' % (COMPOSOR_NAME, TIME_SIGNATURE))
+    # ss.close()
