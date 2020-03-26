@@ -94,7 +94,7 @@ def get_notes():
                 notes.append('.'.join(str(n) for n in element.normalOrder))
             elif isinstance(element, note.Rest):
                 notes.append("rest")
-        if i == 60:
+        if i == 50:
             break
         else:
             i = i + 1
