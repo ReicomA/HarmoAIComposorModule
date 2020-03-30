@@ -164,7 +164,8 @@ def train(model, network_input, network_output):
         monitor='loss',
         verbose=0,
         save_best_only=True,
-        mode='min'
+        mode='min',
+		period=50
     )
     callbacks_list = [checkpoint]
     model.fit(network_input, network_output, epochs=EPOCHS, batch_size=BATCH_SIZE, callbacks=callbacks_list, validation_split=0.2)
