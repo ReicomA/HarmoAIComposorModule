@@ -14,7 +14,7 @@
 * redis(python)
 
 ## 전체 구성도
-![sys](readme_img/system_structure_01.jpg)
+![sys](readme_img/system_structure_01.png)
 * **DeepLearningProcess:** AI 작곡을 담당하며 Control Process 로부터 받은 요청 데이터에 따라 상황에 맞게 작동한다.
 * **Control Process:** Server 제어를 담당하며 GPU할당량 조절, 안드로이드 클라이언트 관리, DeepLearningProcess, Redis Server를 제어한다.
 * **Redis Server:** 딥러닝 서버와 안드로이드 통신을 중계하며, 딥러닝 서버의 Ram확보를 위해 따로 서버를 구축해서 사용한다. 이를 중계하는 프로세스는 딥러닝 프로세스.
