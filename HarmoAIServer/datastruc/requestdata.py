@@ -15,14 +15,16 @@ class RequestData:
         """
         try:
             # userkey는 integer여야 한다.
-            if isinstance(noteSize, int) is False:
-                raise ValueError("note size must be integer")
+            if isinstance(userKey, int) is False:
+                raise ValueError("user key must be integer")
             self.userKey = userKey
 
             self.genre = changeGenreToInteger(genre)
             self.timeSignature = changeSignatureToInteger(timeSignature)
             # NoteSize
             # 노트크기제한은 Config의 데이터로 밖에서 처리 필요
+            if isinstance(noteSize, int) is False:
+                raise ValueError("note size must be integer")
             if noteSize > 0:
                 self.noteSize = noteSize
         except ValueError as e:

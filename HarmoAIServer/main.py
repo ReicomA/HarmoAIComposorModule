@@ -1,3 +1,5 @@
 from datastruc.requestdata import *
+from datastruc.queue_requestdata import *
 
-a = RequestData(189253, "CHOPIN", "_4_4", 300)
+from datastruc.connectiondata import *
+from datastruc.queue_connectiondata import *
