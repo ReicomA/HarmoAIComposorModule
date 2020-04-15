@@ -9,20 +9,31 @@ from serverconnection import ServerConnection
 
 import sys
 import time
+import signal
 
-# get config info
-configRoot = sys.argv[1]
-config = Config(configRoot)
-conn = ServerConnection(config)
-conn.open()
+if __name__ == "__main__":
 
-try:
-    while True:
-        print(conn.read())
-        time.sleep(0.5)
-except KeyboardInterrupt as e:
+    # Signal Handling
+    def sighandler(signum, frame):
+        conn.close()
+        sys.exit()
+    
+    # get config info
+    configRoot = sys.argv[1]
+    config = Config(configRoot)
+    conn = ServerConnection(config)
+    conn.open()
+
+    try:
+        signal.signal(signal.SIGTERM, sighandler)
+        while True:
+            print(conn.read())
+            time.sleep(0.5)
+    except KeyboardInterrupt as e:
+        conn.close()
+        sys.exit()
+    
+    # test close
     conn.close()
-    sys.exit()
 
-# test close
-conn.close()
+

@@ -1,7 +1,7 @@
 {
     "host": "xxxx",
     "port": 7890,
-    "pswd": "xxx",
+    "pswd": "xxxx",
     "max_queue_size": 100,
     "max_note_size": 300,
     "use_gpu_value": 3,

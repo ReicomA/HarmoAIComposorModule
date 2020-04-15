@@ -70,20 +70,40 @@ class ServerConnection:
             self.conn.connection_pool.disconnect()
 
         # 무효화
-        self.rawReader = None
         self.conn = None
+        self.rawReader = None
 
         # 큐 비우기
         self.connectionQueue.clear()
         self.requestDataQueue.clear()
 
+    # 연결되어있는지 확인
+    def isConnected(self):
+        return self.conn != None
+
     def read(self):
+
+        if self.isConnected() is False:
+            raise Exception("disconnected with redis server")
+
         if self.rawReader == None:
-            raise Exception("disconnected with redis")
             self.close(aleadyDisconnected=True)
+            raise Exception("does not subscribe")
+        
         # 데이터 확인
         rawData = self.rawReader.get_message()
         if rawData:
             return rawData['data']
         else:
             return None
+
+    def send(self, pubChannel, data):
+
+        if self.isConnected() is False:
+            raise Exception("disconnected with redis server")
+            
+        try:
+            resultInt = self.conn.publish(pubChannel, data)
+            return resultInt == 1
+        except Exception as e:
+            raise e

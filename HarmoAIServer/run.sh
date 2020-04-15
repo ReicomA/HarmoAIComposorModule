@@ -28,4 +28,4 @@ check_config
 # Finally Run python code
 start_timestamp=`get_timestamp`
 echo "[$start_timestamp] starting process..."
-python harmoaiserver.py $CONFIG_ROOT
+python harmoaiserver.py $CONFIG_ROOT &
