@@ -1,12 +1,13 @@
 #!/bin/bash
 
+#values
+CONFIG_ROOT="config.json"
+
 # get string of timestamp
 get_timestamp() {
     local stamp=$(date +%Y/%m/%d/%H:%M:%S:%6N)
     echo $stamp
 }
-
-CONFIG_ROOT="config.json"
 
 # ConfigFile Check
 check_config() {
@@ -18,6 +19,8 @@ check_config() {
         exit 1
     fi
 }
+
+# test redis server
 
 # main process
 check_config

@@ -31,7 +31,6 @@ class Config:
         try:
             with open(configRoot, 'r') as configFile:
                 jsonDataSet = json.load(configFile)
-
                 self.host = jsonDataSet[ConfigNameLabels.HOST.value]
                 self.port = jsonDataSet[ConfigNameLabels.PORT.value]
                 self.pswd = jsonDataSet[ConfigNameLabels.PSWD.value]

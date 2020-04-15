@@ -42,6 +42,10 @@ class QueueModel(metaclass=ABCMeta):
             del self.dataContainer[0]
             return returnData
     
+    """ 비우기 """
+    def clear(self):
+        self.dataContainer = []
+
     """ 여기서부터 가상함수 (직접 구현 필요) """
 
     # 데이터 삽입
