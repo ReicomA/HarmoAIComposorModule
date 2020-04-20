@@ -8,16 +8,16 @@ class RequestData:
         timeSignature : Int
         noteSize : Int
     """
-    def __init__(self, userKey, genre, timeSignature, noteSize):
+    def __init__(self, myIP, genre, timeSignature, noteSize):
         """
             클라이언트로부터 받는 데이터를 변환한 다음 삽압하는 순서이므로
             맞지 않을 경우 ValueError 반환
         """
         try:
-            # userkey는 integer여야 한다.
-            if isinstance(userKey, int) is False:
+            # IP
+            if isinstance(myIP, str) is False:
                 raise ValueError("user key must be integer")
-            self.userKey = userKey
+            self.ip = myIP
 
             self.genre = changeGenreToInteger(genre)
             self.timeSignature = changeSignatureToInteger(timeSignature)

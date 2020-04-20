@@ -18,6 +18,7 @@ class RequestDataQueue(QueueModel):
             raise ValueError("queue is aleady full")
         
         # data 삽입
+        self.lockMutex()
         self.dataContainer.append(data)
-        
+        self.unLockMutex()
     

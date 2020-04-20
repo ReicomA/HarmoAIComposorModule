@@ -1,5 +1,12 @@
 from enum import Enum
 
+class RequestDataTypeLabel(Enum):
+    TYPE = "type"
+    IP = "myIP"
+    GENRE = "genre"
+    TIMESIGNATURE = "timeSignature"
+    NOTESIZE = "noteSize"
+
 """
 요청 데이터에 대한 라벨들
     1. 박자(Signature)

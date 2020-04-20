@@ -7,6 +7,8 @@ from datastruc.queue_connectiondata import *
 from datastruc.config import Config
 from serverconnection import ServerConnection
 
+from data_translater import *
+
 import sys
 import time
 import signal
@@ -29,6 +31,7 @@ if __name__ == "__main__":
     conn = ServerConnection(config)
     conn.open()
 
+    # dataQueues
     connectionQueue = ConnectionDataQueue(config.maxQueueSize)
     requestQueue = RequestDataQueue(config.maxQueueSize)
 
@@ -38,16 +41,18 @@ if __name__ == "__main__":
         signal.signal(signal.SIGTERM, sighandler)
         while True:
             data = conn.read()
+            transSignal = None
             # Data를 수신 받았을 경우
             if data != None:
                 try:
                     if isinstance(data, bytes) is True:
-                        dataStr = data.decode('utf-8')
-                        dataSet = json.loads(dataStr)
-                        print(dataSet['type'])
+                        transSignal = translater.translateData(data)
                 except Exception as e:
-                    print(e)
                     print("trash data")
+                finally:
+                    if transSignal == None:
+                        print("trash data")
+                    
             
             time.sleep(0.001)
     except KeyboardInterrupt as e:
