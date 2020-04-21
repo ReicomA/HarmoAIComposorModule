@@ -9,6 +9,9 @@ from serverconnection import ServerConnection
 
 from data_translater import *
 
+# Thread Import
+from clientmanagement import ClientManagement
+
 import sys
 import time
 import signal
@@ -16,13 +19,11 @@ import json
 
 if __name__ == "__main__":
 
-    """ 테스트용 코드 입니다
-        클라이언트 테스트가 끝나면 실제 구현에 들어갈 예정
-    """
-
     # Signal Handling
     def sighandler(signum, frame):
+        # Exit Thread
         conn.close()
+        clientManagementThread.shutdown()
         sys.exit()
     
     # get config info
@@ -35,8 +36,21 @@ if __name__ == "__main__":
     connectionQueue = ConnectionDataQueue(config.maxQueueSize)
     requestQueue = RequestDataQueue(config.maxQueueSize)
 
+    # set Translater
     translater = DataTranslater(connectionQueue, requestQueue)
 
+    # set Threads
+    clientManagementThread = ClientManagement(connectionQueue, config, conn)
+
+    # run Threads
+    try:
+        clientManagementThread.start()
+    except Exception as e:
+        # 에러 처리
+        print(e)
+        sys.exit()
+
+    # Main Thread Loop START
     try:
         signal.signal(signal.SIGTERM, sighandler)
         while True:
@@ -52,8 +66,6 @@ if __name__ == "__main__":
                 finally:
                     if transSignal == None:
                         print("trash data")
-                    
-            
             time.sleep(0.001)
     except KeyboardInterrupt as e:
         conn.close()

@@ -53,6 +53,7 @@ class DataTranslater:
 
                     elif dataType == DataTranslaterTypeLabel.REQUEST.value:
                         """ TODO 데이터처리해야됨 """
+                        print(dataSet[RequestDataTypeLabel.GENRE.value])
                         requestData = RequestData(
                             dataSet[RequestDataTypeLabel.IP.value],
                             changeGenreToInteger(dataSet[RequestDataTypeLabel.GENRE.value]),

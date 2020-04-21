@@ -16,7 +16,7 @@ class RequestData:
         try:
             # IP
             if isinstance(myIP, str) is False:
-                raise ValueError("user key must be integer")
+                raise ValueError("user key must be string")
             self.ip = myIP
 
             self.genre = changeGenreToInteger(genre)

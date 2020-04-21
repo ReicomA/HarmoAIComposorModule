@@ -38,15 +38,23 @@ def changeSignatureToInteger(signature):
     for serverSignature in Signature:
         if serverSignature.name == signature:
             return serverSignature.value
-    else:
-        raise ValueError("This is not signature string data")
+    """
+    raise ValueError("This is not signature string data")
+    """
 
 def changeGenreToInteger(genre):
     """
         장르 값을 서버데이터에 맞게 변환
     """
+    resultData = None
     for serverGenre in Genre:
         if serverGenre.name == genre:
-            return serverGenre.value
+            resultData = serverGenre.value
+    return resultData
+    """
+    if isinstance(resultData, int):
+        print(resultData)
+        return resultData
     else:
-        raise ValueError("This is not genres string data")
+        raise ValueError("This is not genre string data")
+    """
