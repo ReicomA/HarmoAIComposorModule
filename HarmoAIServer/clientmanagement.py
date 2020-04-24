@@ -10,10 +10,12 @@ from datastruc.config import Config
 from data_translater import DataTranslaterTypeLabel
 from serverconnection import *
 
+from deeplearningmanagement import DeepLearningManagement
+
 class ClientManagement(threading.Thread):
     """ 유저 연결 여부를 관리하는 클래스 """
 
-    def __init__(self, connectionQueue, config, connection):
+    def __init__(self, connectionQueue, config, connection, dlManagement):
         # TODO 전처리 수행
         threading.Thread.__init__(self)
         self.setDaemon(True)
@@ -21,6 +23,7 @@ class ClientManagement(threading.Thread):
         self.config = config
         self.shutdownSignal = False
         self.conn = connection
+        self.dlManagement = dlManagement
 
     # 쓰레드 종료
     def shutdown(self):
@@ -92,6 +95,7 @@ class ClientManagement(threading.Thread):
                         self.connectClient(data)
                     elif data.signal == DataTranslaterTypeLabel.DISCONNECT.value:
                         self.disConnectClient(data)
+                        self.dlManagement.delProcessInfo(data.host)
                     else:
                         # TODO LogModule로 에러 데이터 전송
                         print(data.signal)

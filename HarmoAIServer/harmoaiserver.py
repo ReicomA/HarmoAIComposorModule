@@ -11,6 +11,7 @@ from data_translater import *
 
 # Thread Import
 from clientmanagement import ClientManagement
+from deeplearningmanagement import DeepLearningManagement
 
 import sys
 import time
@@ -24,6 +25,7 @@ if __name__ == "__main__":
         # Exit Thread
         conn.close()
         clientManagementThread.shutdown()
+        dlThread.shutdown()
         sys.exit()
     
     # get config info
@@ -40,11 +42,13 @@ if __name__ == "__main__":
     translater = DataTranslater(connectionQueue, requestQueue)
 
     # set Threads
-    clientManagementThread = ClientManagement(connectionQueue, config, conn)
+    dlThread = DeepLearningManagement(requestQueue, config, conn)
+    clientManagementThread = ClientManagement(connectionQueue, config, conn, dlThread)
 
     # run Threads
     try:
         clientManagementThread.start()
+        dlThread.start()
     except Exception as e:
         # 에러 처리
         print(e)
