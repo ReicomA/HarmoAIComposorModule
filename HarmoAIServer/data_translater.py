@@ -52,12 +52,11 @@ class DataTranslater:
                         return dataType
 
                     elif dataType == DataTranslaterTypeLabel.REQUEST.value:
-                        """ TODO 데이터처리해야됨 """
-                        print(dataSet[RequestDataTypeLabel.GENRE.value])
+
                         requestData = RequestData(
                             dataSet[RequestDataTypeLabel.IP.value],
-                            changeGenreToInteger(dataSet[RequestDataTypeLabel.GENRE.value]),
-                            changeSignatureToInteger(dataSet[RequestDataTypeLabel.TIMESIGNATURE.value]),
+                            dataSet[RequestDataTypeLabel.GENRE.value],
+                            dataSet[RequestDataTypeLabel.TIMESIGNATURE.value],
                             dataSet[RequestDataTypeLabel.NOTESIZE.value]
                         )
                         self.requestQueue.put(requestData)
@@ -68,6 +67,7 @@ class DataTranslater:
                     raise TypeError("Wrong Type")
             # 정확하지 않은 데이터가 발견했을 경우 바로 제거
             except Exception as e:
+                """ TODO 로그모듈 추가시 로그파일로 저장 요청"""
                 print(e)
                 return None
         else:

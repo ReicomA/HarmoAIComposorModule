@@ -38,9 +38,8 @@ def changeSignatureToInteger(signature):
     for serverSignature in Signature:
         if serverSignature.name == signature:
             return serverSignature.value
-    """
+
     raise ValueError("This is not signature string data")
-    """
 
 def changeGenreToInteger(genre):
     """
@@ -50,11 +49,5 @@ def changeGenreToInteger(genre):
     for serverGenre in Genre:
         if serverGenre.name == genre:
             resultData = serverGenre.value
-    return resultData
-    """
-    if isinstance(resultData, int):
-        print(resultData)
-        return resultData
-    else:
-        raise ValueError("This is not genre string data")
-    """
+            return resultData
+    raise ValueError("This is not genre string data")
