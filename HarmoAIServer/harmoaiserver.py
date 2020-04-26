@@ -58,6 +58,7 @@ if __name__ == "__main__":
     try:
         signal.signal(signal.SIGTERM, sighandler)
         while True:
+            """ PT.1 Read Data """
             data = conn.read()
             transSignal = None
             # Data를 수신 받았을 경우
@@ -70,6 +71,8 @@ if __name__ == "__main__":
                 finally:
                     if transSignal == None:
                         print("trash data")
+                
+                """ PT.2 Check SendData """
             time.sleep(0.001)
     except KeyboardInterrupt as e:
         conn.close()

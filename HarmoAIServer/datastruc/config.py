@@ -15,7 +15,8 @@ class ConfigNameLabels(Enum):
     MAX_NOTE_SIZE = "max_note_size"
     USE_GPU_VALUE = "use_gpu_value"
     SERIAL = "serial"
-    
+    MODELS = "models"
+    TMP_DIR = "tmp_dir"
 
 class Config:
     def __init__(self, configRoot):
@@ -38,6 +39,17 @@ class Config:
                 self.maxNoteSize = jsonDataSet[ConfigNameLabels.MAX_NOTE_SIZE.value]
                 self.useGpuValue = jsonDataSet[ConfigNameLabels.USE_GPU_VALUE.value]
                 self.serial = jsonDataSet[ConfigNameLabels.SERIAL.value]
+                self.tmpDir = jsonDataSet[ConfigNameLabels.TMP_DIR.value]
+                self.DLMap = {}
+
+                i = 0
+                DLKeys = jsonDataSet[ConfigNameLabels.MODELS.value].keys()
+
+                # 모델 파일 루트 갖고오기
+                for key in DLKeys:
+                    self.DLMap[i+1] = jsonDataSet[ConfigNameLabels.MODELS.value][key]
+                    i += 1
+
         except Exception as e:
             raise e
 

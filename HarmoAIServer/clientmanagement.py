@@ -95,7 +95,6 @@ class ClientManagement(threading.Thread):
                         self.connectClient(data)
                     elif data.signal == DataTranslaterTypeLabel.DISCONNECT.value:
                         self.disConnectClient(data)
-                        self.dlManagement.delProcessInfo(data.host)
                     else:
                         # TODO LogModule로 에러 데이터 전송
                         print(data.signal)

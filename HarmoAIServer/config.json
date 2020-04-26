@@ -1,9 +1,19 @@
 {
-    "host": "xxx",
-    "port": 0,
-    "pswd": "xxxx",
+    "host": "sweetcase.tk",
+    "port": 7890,
+    "pswd": "4680",
     "max_queue_size": 100,
     "max_note_size": 300,
     "use_gpu_value": 3,
-    "serial": "avbk2#$@skd#%"
+    "serial": "avbk2#$@skd#%",
+    "tmp_dir": "tmp",
+
+    "models" : {
+        "CHOPIN" : "models/basic_rnn.mag",
+        "BACH" : "models/basic_rnn.mag",
+        "BEETHOVEN" : "models/basic_rnn.mag",
+        "SCARLATTI" : "models/basic_rnn.mag",
+        "BALAD" : "models/basic_rnn.mag",
+        "NEW_AGE" : "models/basic_rnn.mag"
+    }
 }
